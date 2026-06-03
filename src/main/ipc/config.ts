@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron'
 import { IPC_CHANNELS } from '../../shared/constants'
 import { loadConfig, saveConfig, configExists } from '../services/configService'
+import { setVaultPath } from '../services/vaultService'
 import type { SlateConfig } from '../../shared/types/config'
 
 export function registerConfigHandlers(): void {
@@ -19,6 +20,7 @@ export function registerConfigHandlers(): void {
   ipcMain.handle(IPC_CHANNELS.CONFIG_SAVE, (_, config: SlateConfig) => {
     try {
       saveConfig(config)
+      if (config.vaultPath) setVaultPath(config.vaultPath)
       return { success: true }
     } catch (err) {
       return { success: false, error: String(err) }

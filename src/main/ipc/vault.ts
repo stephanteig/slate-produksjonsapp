@@ -4,7 +4,9 @@ import path from 'path'
 import AdmZip from 'adm-zip'
 import { IPC_CHANNELS, CONFIG_FILENAME } from '../../shared/constants'
 import { loadConfig, saveConfig, getConfigPath } from '../services/configService'
-import { initVaultStructure } from '../services/vaultService'
+import { setVaultPath, initVaultStructure } from '../services/vaultService'
+import { startWatching } from '../services/watchService'
+import { BrowserWindow } from 'electron'
 
 export function registerVaultHandlers(): void {
   ipcMain.handle(IPC_CHANNELS.VAULT_PICK_FOLDER, async () => {
@@ -25,9 +27,12 @@ export function registerVaultHandlers(): void {
     return result.filePaths[0]
   })
 
-  ipcMain.handle(IPC_CHANNELS.VAULT_INIT, (_, vaultPath: string) => {
+  ipcMain.handle(IPC_CHANNELS.VAULT_INIT, (event, vaultPath: string) => {
     try {
+      setVaultPath(vaultPath)
       initVaultStructure(vaultPath)
+      const win = BrowserWindow.fromWebContents(event.sender)
+      if (win) startWatching(vaultPath, win)
       return { success: true }
     } catch (err) {
       return { success: false, error: String(err) }
