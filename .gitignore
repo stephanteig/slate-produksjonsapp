@@ -1,0 +1,19 @@
+node_modules/
+dist/
+release/
+out/
+.env
+*.local
+
+# macOS
+.DS_Store
+
+# Electron packaged builds
+*.dmg
+*.exe
+*.AppImage
+
+# Testing
+test-results/
+playwright-report/
+coverage/
