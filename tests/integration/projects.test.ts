@@ -7,8 +7,11 @@ import {
   initVaultStructure,
   listProjects,
   saveProject,
+  listShootDays,
+  saveShootDay,
 } from '../../src/main/services/vaultService'
 import type { Project } from '../../src/shared/types/project'
+import type { ShootDay } from '../../src/shared/types/calendar'
 
 let tempDir: string
 
@@ -67,5 +70,62 @@ describe('Arkiver prosjekt', () => {
 
     const dir = path.join(tempDir, 'Slate', 'projects', 'test-prosjekt')
     expect(fs.existsSync(path.join(dir, 'project.md'))).toBe(true)
+  })
+})
+
+describe('Rename prosjekt', () => {
+  it('sletter gammel mappe og oppretter ny — ingen duplikater', () => {
+    const project = makeProject()
+    saveProject(project)
+
+    const oldDir = path.join(tempDir, 'Slate', 'projects', 'test-prosjekt')
+    expect(fs.existsSync(oldDir)).toBe(true)
+
+    saveProject({ ...project, title: 'Nytt Prosjektnavn' })
+
+    const newDir = path.join(tempDir, 'Slate', 'projects', 'nytt-prosjektnavn')
+    expect(fs.existsSync(newDir)).toBe(true)
+    expect(fs.existsSync(oldDir)).toBe(false)
+
+    const projects = listProjects()
+    expect(projects.length).toBe(1)
+    expect(projects[0].title).toBe('Nytt Prosjektnavn')
+  })
+})
+
+describe('Shoot-dager', () => {
+  it('tillater to shoot-dager på samme dato', () => {
+    const day1: ShootDay = {
+      id: 'shoot-1',
+      date: '2026-06-15',
+      title: 'Morgen-shoot',
+    }
+    const day2: ShootDay = {
+      id: 'shoot-2',
+      date: '2026-06-15',
+      title: 'Kveld-shoot',
+    }
+    saveShootDay(day1)
+    saveShootDay(day2)
+
+    const days = listShootDays()
+    expect(days.length).toBe(2)
+    const titles = days.map((d) => d.title)
+    expect(titles).toContain('Morgen-shoot')
+    expect(titles).toContain('Kveld-shoot')
+  })
+
+  it('oppdaterer eksisterende shoot-dag uten å lage duplikat', () => {
+    const day: ShootDay = {
+      id: 'shoot-upd',
+      date: '2026-06-20',
+      title: 'Original tittel',
+    }
+    saveShootDay(day)
+    saveShootDay({ ...day, title: 'Oppdatert tittel' })
+
+    const days = listShootDays()
+    expect(days.length).toBe(1)
+    expect(days[0].title).toBe('Oppdatert tittel')
   })
 })

@@ -185,11 +185,22 @@ export function CalendarView() {
             {!showShootForm && !editingShootDay && selectedShootDays.map((s) => (
               <div key={s.id} className="rounded-lg border p-3" style={{ borderColor: 'var(--color-border)', background: 'var(--color-surface)' }}>
                 <div className="flex items-start justify-between">
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium" style={{ color: 'var(--color-accent)' }}>{s.title}</p>
-                    {s.location && <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{s.location}</p>}
+                    {s.location && <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>📍 {s.location}</p>}
+                    {s.crew && <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>👥 {s.crew}</p>}
                   </div>
-                  <button onClick={() => { setEditingShootDay(s); setShowShootForm(false) }} className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Rediger</button>
+                  <div className="flex gap-1 flex-shrink-0 ml-2">
+                    <button
+                      onClick={() => window.electronAPI.exportShootDayPdf(s.id)}
+                      className="text-xs"
+                      style={{ color: 'var(--color-text-muted)' }}
+                      title="Eksporter PDF"
+                    >
+                      PDF
+                    </button>
+                    <button onClick={() => { setEditingShootDay(s); setShowShootForm(false) }} className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Rediger</button>
+                  </div>
                 </div>
               </div>
             ))}

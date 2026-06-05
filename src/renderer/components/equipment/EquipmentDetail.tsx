@@ -38,6 +38,7 @@ export function EquipmentDetail({ equipment, onDeleted }: EquipmentDetailProps) 
   const activeLoans = loans.filter((l) => l.equipmentId === equipment.id && !l.returned)
   const pastLoans = loans.filter((l) => l.equipmentId === equipment.id && l.returned)
   const owner = state.config?.owners.find((o) => o.id === equipment.ownerId)
+  const kitsContaining = state.kits.filter((k) => k.equipmentIds.includes(equipment.id))
 
   async function handleSave() {
     const price = form.purchasePrice
@@ -116,6 +117,13 @@ export function EquipmentDetail({ equipment, onDeleted }: EquipmentDetailProps) 
           <p className="mb-3 text-sm" style={{ color: 'var(--color-text)' }}>
             Slett «{equipment.name}» permanent?
           </p>
+          {kitsContaining.length > 0 && (
+            <p className="mb-3 text-xs" style={{ color: '#eab308' }}>
+              ⚠ Utstyret er i {kitsContaining.length} kit{kitsContaining.length !== 1 ? 's' : ''} (
+              {kitsContaining.map((k) => k.name).join(', ')}
+              ) og vil fjernes automatisk.
+            </p>
+          )}
           <div className="flex gap-2">
             <button onClick={handleDelete} className="btn-primary text-sm" style={{ background: '#ef4444' }}>Slett</button>
             <button onClick={() => setConfirmDelete(false)} className="btn-secondary text-sm">Avbryt</button>

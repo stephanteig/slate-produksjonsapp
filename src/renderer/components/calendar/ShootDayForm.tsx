@@ -18,6 +18,7 @@ export function ShootDayForm({ initialDate, existingDay, onClose }: ShootDayForm
     date: existingDay?.date ?? initialDate ?? today(),
     title: existingDay?.title ?? '',
     location: existingDay?.location ?? '',
+    crew: existingDay?.crew ?? '',
     projectId: existingDay?.projectId ?? '',
     equipmentIds: existingDay?.equipmentIds ?? [],
     notes: existingDay?.notes ?? '',
@@ -38,6 +39,7 @@ export function ShootDayForm({ initialDate, existingDay, onClose }: ShootDayForm
       date: form.date!,
       title: form.title.trim(),
       location: form.location || undefined,
+      crew: form.crew || undefined,
       projectId: form.projectId || undefined,
       equipmentIds: form.equipmentIds ?? [],
       notes: form.notes || undefined,
@@ -68,6 +70,7 @@ export function ShootDayForm({ initialDate, existingDay, onClose }: ShootDayForm
       <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="input-base w-full" />
       <input value={form.title ?? ''} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Tittel" className="input-base w-full" />
       <input value={form.location ?? ''} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Lokasjon (valgfritt)" className="input-base w-full" />
+      <input value={form.crew ?? ''} onChange={(e) => setForm({ ...form, crew: e.target.value })} placeholder="Crew — Navn, Navn, Navn (valgfritt)" className="input-base w-full" />
       <select value={form.projectId ?? ''} onChange={(e) => setForm({ ...form, projectId: e.target.value })} className="input-base w-full">
         <option value="">Tilknyttet prosjekt (valgfritt)</option>
         {activeProjects.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}

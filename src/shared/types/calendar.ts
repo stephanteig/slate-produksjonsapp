@@ -4,6 +4,7 @@ export interface ShootDay {
   projectId?: string
   title: string
   location?: string
+  crew?: string
   equipmentIds?: string[]
   notes?: string
 }

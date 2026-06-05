@@ -1,10 +1,11 @@
 import { useEffect, useCallback } from 'react'
 import { useAppStore } from '../store/appStore'
-import { DEFAULT_THEME } from '../../shared/constants'
+import { DEFAULT_THEME, THEMES } from '../../shared/constants'
 
 export function useTheme() {
   const { state, dispatch } = useAppStore()
-  const theme = state.config?.theme ?? DEFAULT_THEME
+  const rawTheme = state.config?.theme ?? DEFAULT_THEME
+  const theme = (THEMES as readonly string[]).includes(rawTheme) ? rawTheme : DEFAULT_THEME
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)

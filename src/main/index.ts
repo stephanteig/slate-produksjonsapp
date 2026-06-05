@@ -7,12 +7,14 @@ import { registerEquipmentHandlers } from './ipc/equipment'
 import { registerCalendarHandlers } from './ipc/calendar'
 import { registerKitHandlers } from './ipc/kits'
 import { registerNotificationHandlers } from './ipc/notifications'
+import { registerShotlistHandlers } from './ipc/shotlists'
 import { loadConfig, configExists } from './services/configService'
 import { setVaultPath, initVaultStructure } from './services/vaultService'
 import { startWatching } from './services/watchService'
 import { getOverdueLoans } from './services/notificationService'
 
-const isDev = !app.isPackaged
+// Allow E2E tests to force production mode by setting SLATE_TEST=1
+const isDev = !app.isPackaged && process.env.SLATE_TEST !== '1'
 
 function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
@@ -53,6 +55,7 @@ app.whenReady().then(() => {
   registerCalendarHandlers()
   registerKitHandlers()
   registerNotificationHandlers()
+  registerShotlistHandlers()
 
   const win = createWindow()
 

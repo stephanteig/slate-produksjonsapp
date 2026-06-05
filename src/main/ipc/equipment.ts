@@ -5,6 +5,8 @@ import {
   saveEquipment,
   deleteEquipment,
   listLoans,
+  listKits,
+  saveKit,
 } from '../services/vaultService'
 import type { Equipment } from '../../shared/types/equipment'
 
@@ -40,6 +42,15 @@ export function registerEquipmentHandlers(): void {
         }
       }
       deleteEquipment(equipmentId)
+
+      // Remove deleted equipment from all kits
+      const kits = listKits()
+      for (const kit of kits) {
+        if (kit.equipmentIds.includes(equipmentId)) {
+          saveKit({ ...kit, equipmentIds: kit.equipmentIds.filter((id) => id !== equipmentId) })
+        }
+      }
+
       return { success: true }
     } catch (err) {
       return { success: false, error: String(err) }

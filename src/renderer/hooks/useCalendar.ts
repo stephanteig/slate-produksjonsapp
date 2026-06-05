@@ -56,8 +56,12 @@ export function useCalendar() {
       const result = await window.electronAPI.returnLoan(loanId)
       if (result.success) {
         await refreshLoans()
-        const eqResult = await window.electronAPI.listEquipment()
+        const [eqResult, notifResult] = await Promise.all([
+          window.electronAPI.listEquipment(),
+          window.electronAPI.listNotifications(),
+        ])
         if (eqResult.success) dispatch({ type: 'SET_EQUIPMENT', equipment: eqResult.data })
+        if (notifResult.success) dispatch({ type: 'SET_NOTIFICATIONS', notifications: notifResult.data })
       }
       return result
     },

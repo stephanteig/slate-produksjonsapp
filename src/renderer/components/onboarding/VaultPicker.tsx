@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 interface VaultPickerProps {
   initialPath: string
@@ -10,6 +10,18 @@ export function VaultPicker({ initialPath, onNext }: VaultPickerProps) {
   const [warning, setWarning] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [importing, setImporting] = useState(false)
+
+  // Warn if the imported path doesn't exist on this machine
+  useEffect(() => {
+    if (!initialPath) return
+    window.electronAPI.checkVaultPath(initialPath).then((exists) => {
+      if (!exists) {
+        setWarning(
+          `Stien «${initialPath}» finnes ikke på denne maskinen. Velg en ny vault-mappe.`
+        )
+      }
+    })
+  }, [initialPath])
 
   async function handlePickFolder() {
     setError(null)

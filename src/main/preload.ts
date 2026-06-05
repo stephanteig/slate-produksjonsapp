@@ -5,6 +5,7 @@ import type { Equipment, Loan } from '../shared/types/equipment'
 import type { ShootDay } from '../shared/types/calendar'
 import type { Kit } from '../shared/types/kit'
 import type { SlateConfig } from '../shared/types/config'
+import type { Shotlist } from '../shared/types/shotlist'
 
 contextBridge.exposeInMainWorld('electronAPI', {
   // Config
@@ -17,6 +18,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   pickFile: (options?: { filters?: Electron.FileFilter[] }) =>
     ipcRenderer.invoke(IPC_CHANNELS.VAULT_PICK_FILE, options),
   initVault: (vaultPath: string) => ipcRenderer.invoke(IPC_CHANNELS.VAULT_INIT, vaultPath),
+  checkVaultPath: (p: string) => ipcRenderer.invoke(IPC_CHANNELS.VAULT_CHECK_PATH, p),
   exportData: (vaultPath: string) => ipcRenderer.invoke(IPC_CHANNELS.VAULT_EXPORT, vaultPath),
   importData: () => ipcRenderer.invoke(IPC_CHANNELS.VAULT_IMPORT),
   importSlateDir: (vaultPath: string) =>
@@ -53,6 +55,21 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // Notifications
   listNotifications: () => ipcRenderer.invoke(IPC_CHANNELS.NOTIFICATIONS_LIST),
+
+  // Shotlists
+  listShotlists: () => ipcRenderer.invoke(IPC_CHANNELS.SHOTLISTS_LIST),
+  saveShotlist: (sl: Shotlist) => ipcRenderer.invoke(IPC_CHANNELS.SHOTLISTS_SAVE, sl),
+  deleteShotlist: (id: string) => ipcRenderer.invoke(IPC_CHANNELS.SHOTLISTS_DELETE, id),
+  importSwshot: () => ipcRenderer.invoke(IPC_CHANNELS.SHOTLISTS_IMPORT_SWSHOT),
+  exportShotlistPdf: (id: string) => ipcRenderer.invoke(IPC_CHANNELS.SHOTLISTS_EXPORT_PDF, id),
+  exportShootDayPdf: (id: string) => ipcRenderer.invoke(IPC_CHANNELS.SHOOTDAY_EXPORT_PDF, id),
+  uploadShotImage: (params: {
+    shotlistId: string
+    shotId?: string
+    imageType: 'storyboard' | 'moodboard'
+    sourcePath: string
+  }) => ipcRenderer.invoke(IPC_CHANNELS.SHOTLISTS_UPLOAD_IMAGE, params),
+  readVaultImage: (relativePath: string) => ipcRenderer.invoke(IPC_CHANNELS.VAULT_READ_IMAGE, relativePath),
 
   // Event listeners (vault changes, notification updates)
   onVaultChanged: (callback: (data: { event: string; filename: string }) => void) => {

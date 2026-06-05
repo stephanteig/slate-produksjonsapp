@@ -5,6 +5,7 @@ import type { Equipment, Loan } from '../../shared/types/equipment'
 import type { ShootDay } from '../../shared/types/calendar'
 import type { Kit } from '../../shared/types/kit'
 import type { LoanNotification } from '../../shared/types/notification'
+import type { Shotlist } from '../../shared/types/shotlist'
 
 export type AppView =
   | 'onboarding'
@@ -12,6 +13,7 @@ export type AppView =
   | 'equipment'
   | 'calendar'
   | 'kits'
+  | 'shotlists'
   | 'settings'
 
 interface AppState {
@@ -22,6 +24,7 @@ interface AppState {
   loans: Loan[]
   shootDays: ShootDay[]
   kits: Kit[]
+  shotlists: Shotlist[]
   notifications: LoanNotification[]
   highlightedLoanId: string | null
 }
@@ -34,6 +37,7 @@ type AppAction =
   | { type: 'SET_LOANS'; loans: Loan[] }
   | { type: 'SET_SHOOT_DAYS'; shootDays: ShootDay[] }
   | { type: 'SET_KITS'; kits: Kit[] }
+  | { type: 'SET_SHOTLISTS'; shotlists: Shotlist[] }
   | { type: 'SET_NOTIFICATIONS'; notifications: LoanNotification[] }
   | { type: 'HIGHLIGHT_LOAN'; loanId: string | null }
 
@@ -45,6 +49,7 @@ const initialState: AppState = {
   loans: [],
   shootDays: [],
   kits: [],
+  shotlists: [],
   notifications: [],
   highlightedLoanId: null,
 }
@@ -65,6 +70,8 @@ function reducer(state: AppState, action: AppAction): AppState {
       return { ...state, shootDays: action.shootDays }
     case 'SET_KITS':
       return { ...state, kits: action.kits }
+    case 'SET_SHOTLISTS':
+      return { ...state, shotlists: action.shotlists }
     case 'SET_NOTIFICATIONS':
       return { ...state, notifications: action.notifications }
     case 'HIGHLIGHT_LOAN':

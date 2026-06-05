@@ -14,23 +14,13 @@ export function ConfigImporter({ onImported, onSkip }: ConfigImporterProps) {
     setError(null)
     setLoading(true)
     try {
-      const filePath = await window.electronAPI.pickFile({
-        filters: [{ name: 'Slate config', extensions: ['json'] }],
-      })
-      if (!filePath) {
-        setLoading(false)
-        return
-      }
-
       const result = await window.electronAPI.importData()
       if (!result.success) {
         if (!result.canceled) {
-          setError(result.error ?? 'Kunne ikke lese konfigurasjonsfilen.')
+          setError(result.error ?? 'Kunne ikke lese eksportfilen.')
         }
-        setLoading(false)
         return
       }
-
       onImported(result.config)
     } catch (err) {
       setError(String(err))

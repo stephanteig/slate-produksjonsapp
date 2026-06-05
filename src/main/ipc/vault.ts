@@ -3,8 +3,8 @@ import fs from 'fs'
 import path from 'path'
 import AdmZip from 'adm-zip'
 import { IPC_CHANNELS, CONFIG_FILENAME } from '../../shared/constants'
-import { loadConfig, saveConfig, getConfigPath } from '../services/configService'
-import { setVaultPath, initVaultStructure } from '../services/vaultService'
+import { loadConfig, getConfigPath } from '../services/configService'
+import { setVaultPath, initVaultStructure, getVaultPath } from '../services/vaultService'
 import { startWatching } from '../services/watchService'
 import { BrowserWindow } from 'electron'
 
@@ -25,6 +25,14 @@ export function registerVaultHandlers(): void {
     })
     if (result.canceled || result.filePaths.length === 0) return null
     return result.filePaths[0]
+  })
+
+  ipcMain.handle(IPC_CHANNELS.VAULT_CHECK_PATH, (_, p: string) => {
+    try {
+      return fs.existsSync(p) && fs.statSync(p).isDirectory()
+    } catch {
+      return false
+    }
   })
 
   ipcMain.handle(IPC_CHANNELS.VAULT_INIT, (event, vaultPath: string) => {
@@ -107,6 +115,26 @@ export function registerVaultHandlers(): void {
 
       const importedConfig = loadConfig()
       return { success: true, config: importedConfig }
+    } catch (err) {
+      return { success: false, error: String(err) }
+    }
+  })
+
+  ipcMain.handle(IPC_CHANNELS.VAULT_READ_IMAGE, (_, relativePath: string) => {
+    try {
+      const vp = getVaultPath()
+      if (!vp) return { success: false, error: 'Vault-sti er ikke konfigurert.' }
+      const absPath = path.join(vp, relativePath)
+      if (!fs.existsSync(absPath)) return { success: false, error: 'Fant ikke bildet.' }
+      const buffer = fs.readFileSync(absPath)
+      const ext = path.extname(absPath).slice(1).toLowerCase()
+      const mime =
+        ext === 'jpg' || ext === 'jpeg'
+          ? 'image/jpeg'
+          : ext === 'png'
+            ? 'image/png'
+            : 'image/webp'
+      return { success: true, data: `data:${mime};base64,${buffer.toString('base64')}` }
     } catch (err) {
       return { success: false, error: String(err) }
     }

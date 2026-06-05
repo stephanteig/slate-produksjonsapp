@@ -6,6 +6,7 @@ import type { ShootDay } from '../shared/types/calendar'
 import type { Kit } from '../shared/types/kit'
 import type { SlateConfig } from '../shared/types/config'
 import type { LoanNotification } from '../shared/types/notification'
+import type { Shotlist } from '../shared/types/shotlist'
 
 interface IpcResult<T = undefined> {
   success: boolean
@@ -24,6 +25,7 @@ interface ElectronAPI {
   pickFolder: () => Promise<string | null>
   pickFile: (options?: { filters?: Array<{ name: string; extensions: string[] }> }) => Promise<string | null>
   initVault: (vaultPath: string) => Promise<IpcResult>
+  checkVaultPath: (p: string) => Promise<boolean>
   exportData: (vaultPath: string) => Promise<IpcResult>
   importData: () => Promise<IpcResult<SlateConfig> & { config: SlateConfig }>
   importSlateDir: (vaultPath: string) => Promise<IpcResult>
@@ -56,6 +58,21 @@ interface ElectronAPI {
 
   // Notifications
   listNotifications: () => Promise<IpcResult<LoanNotification[]>>
+
+  // Shotlists
+  listShotlists: () => Promise<IpcResult<Shotlist[]>>
+  saveShotlist: (sl: Shotlist) => Promise<IpcResult>
+  deleteShotlist: (id: string) => Promise<IpcResult>
+  importSwshot: () => Promise<IpcResult<Shotlist[]> & { errors?: string[]; canceled?: boolean }>
+  exportShotlistPdf: (id: string) => Promise<IpcResult<string>>
+  exportShootDayPdf: (id: string) => Promise<IpcResult<string>>
+  uploadShotImage: (params: {
+    shotlistId: string
+    shotId?: string
+    imageType: 'storyboard' | 'moodboard'
+    sourcePath: string
+  }) => Promise<IpcResult<string> & { oversized?: boolean }>
+  readVaultImage: (relativePath: string) => Promise<IpcResult<string>>
 
   // Event listeners
   onVaultChanged: (callback: (data: { event: string; filename: string }) => void) => void
