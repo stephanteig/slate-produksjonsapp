@@ -18,7 +18,13 @@ export function TopBar() {
     <div
       className="flex h-12 items-center justify-between border-b px-4"
       style={{
-        background: 'var(--color-surface)',
+        background: `repeating-linear-gradient(
+          -45deg,
+          var(--color-surface) 0px,
+          var(--color-surface) 44px,
+          color-mix(in srgb, var(--color-border) 45%, transparent) 44px,
+          color-mix(in srgb, var(--color-border) 45%, transparent) 88px
+        )`,
         borderColor: 'var(--color-border)',
         WebkitAppRegion: 'drag',
       } as React.CSSProperties}

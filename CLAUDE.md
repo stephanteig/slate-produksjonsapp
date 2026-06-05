@@ -926,6 +926,7 @@ Vent på bekreftelse fra Stephan. Først etter "ja" gjelder disse reglene:
 > Oppdatert: 2026-06-05. Kjør `npm test` og `npm run test:e2e` for å verifisere.
 
 ### Ferdig ✅
+- **Film slate-visuell identitet** — diagonal stripe i TopBar (referanse til clapper board), PROD/SHOOT/SHOT/EQ-feltetiketter på dashboard-kort; `TopBar` er header-stripa, sidebar har transparent drag-region
 - **Dashboard (Hjem)** — statistikk-kort, kommende shoot-dager, aktive prosjekter, varsler, hurtiglenker; er nå default-visning ved oppstart
 - **Kryssvisningsnavigasjon** — klikk shoot-dag/shotlist fra prosjekt, dashboard eller kalender for direktenavigasjon via `activeShotlistId` i global state
 - **Onboarding** — vault-valg, config-import, theme-valg, mappestruktur opprettes
@@ -979,6 +980,8 @@ Disse beslutningene er tatt etter diskusjon med Stephan Teig. En ny Claude skal 
 | `activeShotlistId` i global state for navigasjon | Renderer-komponenter er løst koblet — en global hint er ryddigere enn props drilling |
 | Dashboard er default-visning ved oppstart | Gir brukeren umiddelbar oversikt over hva som er planlagt |
 | PDF-bilder embedded som base64 | Main process har fs-tilgang; renderer har aldri direkte fs-tilgang |
+| TopBar er header-stripa — ingen separat SlateStripe-komponent | TopBar og sidebar-drag-region er begge `h-12`; stripe kun på høyre side, sidebar er transparent. Unngår dobbel header |
+| Sidebar har transparent drag-region (ingen stripe) | macOS traffic lights clearance + visuell ro — stripe bare i TopBar-raden |
 | PR-workflow IKKE aktivert ennå | V1/shotlister ikke bekreftet ferdig av Stephan |
 
 ---

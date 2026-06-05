@@ -86,21 +86,11 @@ export function Sidebar() {
         borderColor: 'var(--color-border)',
       }}
     >
-      {/* App header */}
+      {/* Transparent drag region — matches TopBar height, clears macOS traffic lights */}
       <div
-        className="flex h-12 items-center px-4 border-b"
-        style={{
-          borderColor: 'var(--color-border)',
-          WebkitAppRegion: 'drag',
-        } as React.CSSProperties}
-      >
-        <span
-          className="text-base font-bold tracking-tight"
-          style={{ color: 'var(--color-text)' }}
-        >
-          Slate
-        </span>
-      </div>
+        className="h-12 flex-shrink-0"
+        style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
+      />
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-3">

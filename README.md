@@ -5,6 +5,7 @@ Cross-platform produksjonsdashboard for videoskapere. Lagrer all data som Markdo
 ## Features
 
 ### Ferdig ✅
+- [x] **Film slate-visuell identitet** — diagonal clapper board-stripe i header, PROD/SHOOT/SHOT/EQ-feltetiketter på dashboard-kort
 - [x] **Dashboard** — hjemskjerm med statistikk, kommende shoot-dager, aktive prosjekter, varsler og hurtiglenker
 - [x] **Onboarding** — vault-valg, theme-valg, mappestruktur
 - [x] **Prosjekt-todo** — opprett, rediger, arkiver, hierarkiske tasks med sub-tasks; viser tilknyttede shoot-dager og shotlister
