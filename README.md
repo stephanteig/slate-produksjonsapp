@@ -1,6 +1,13 @@
 # Slate
 
-Cross-platform produksjonsdashboard for videoskapere. Lagrer all data som Markdown-filer i en Obsidian-vault.
+<p align="center">
+  <img src="assets/icons/slate-icon-fields-mono.svg" width="120" alt="Slate logo" />
+</p>
+
+<p align="center">
+  Cross-platform produksjonsdashboard for videoskapere.<br>
+  Lagrer all data som Markdown-filer i en Obsidian-vault.
+</p>
 
 ## Features
 
