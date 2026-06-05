@@ -112,4 +112,29 @@ App-konfigurasjon lagres i Electron's `userData`-mappe som `slate-config.json` �
 
 ---
 
+## Claude Code Skill — `slate:create-content`
+
+Prosjektet inkluderer en Claude Code-skill for å raskt generere korrekt formatert vault-innhold uten å åpne appen.
+
+**Installer:**
+
+```bash
+# Kopier skill-filen til Claude Code sin skills-mappe
+cp skills/slate:create-content/SKILL.md ~/.claude/skills/slate:create-content/SKILL.md
+```
+
+**Bruk i Claude Code:**
+
+```
+/slate:create-content lag et interview kit med Sony FX3 og Deity mikrofon
+/slate:create-content sett opp fullstendig testdata i Slate
+/slate:create-content opprett en shoot-dag for 20. juni på Youngstorget med crew Stephan og Kari
+```
+
+Skillen genererer ferdig YAML-frontmatter for alle Slate-datatyper (kit, utstyr, shotlist, prosjekt, shoot-dag) og kan lage et `seed-slate.mjs`-script for å skrive alle filene til vaulten på én gang.
+
+Skill-filen: [`skills/slate:create-content/SKILL.md`](skills/slate:create-content/SKILL.md)
+
+---
+
 *Bygget av Stephan Teig — 2026*

@@ -187,6 +187,21 @@ React-komponent → window.electronAPI.saveProject(data) → IPC → main/ipc/pr
 
 ---
 
+## Seksjon 8 — Claude Code Skill
+
+Prosjektet inkluderer en `slate:create-content`-skill for Claude Code som genererer korrekt formaterte vault-filer (kit, utstyr, shotlist, prosjekt, shoot-dag) uten å åpne appen.
+
+**Plassering i repoet:** `skills/slate:create-content/SKILL.md`
+
+**Installer lokalt:**
+```bash
+cp skills/slate:create-content/SKILL.md ~/.claude/skills/slate:create-content/SKILL.md
+```
+
+Skillen kjenner alle Slates datamodeller, slugify-regler og frontmatter-format, og kan generere fullstendige testdata-pakker eller on-set-klar innhold på én kommando.
+
+---
+
 ## Beslutninger & Begrunnelser
 
 | Beslutning | Begrunnelse |

@@ -949,6 +949,7 @@ Vent på bekreftelse fra Stephan. Først etter "ja" gjelder disse reglene:
 - **PDF-eksport av shotlist** — inkluderer storyboard-bilder per shot og moodboard-seksjon (base64 embedded)
 - **PDF-eksport av shoot-dag** — dato, crew, shotlister og utstyr samlet
 - **Importer fra Markr** — .swshot-filer via Innstillinger
+- **`slate:create-content` skill** — Claude Code skill for å generere kits, utstyr, shotlister, prosjekter og shoot-dager som korrekte Markdown-filer for vaulten; skill-fil i `skills/slate:create-content/SKILL.md`, installert i `~/.claude/skills/slate:create-content/SKILL.md`
 
 ### Gjenstår 🗓
 - **Geist-font** — ikke self-hostet ennå (bruker system-font for nå)
