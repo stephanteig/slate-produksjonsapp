@@ -946,14 +946,13 @@ Vent på bekreftelse fra Stephan. Først etter "ja" gjelder disse reglene:
 - **Importer fra Markr** — .swshot-filer via Innstillinger
 
 ### Gjenstår 🗓
-- **E2E-tester for shotlister** — `tests/e2e/shotlists.spec.ts` ikke skrevet ennå
 - **.dmg og .exe pakking** — utsatt til etter UI-testing er ferdig
 - **Geist-font** — ikke self-hostet ennå (bruker system-font for nå)
 
 ### Test-status (2026-06-05)
 ```
-npm test        → 50 tests passed (9 test files)
-npm run test:e2e → 14 tests passed
+npm test        → 52 tests passed (9 test files)
+npm run test:e2e → 14 tests (+ 7 nye shotlist-tester i shotlists.spec.ts)
 npm run lint    → 0 errors
 npx tsc --noEmit → 0 errors
 ```
@@ -1020,13 +1019,13 @@ Beta er ferdig når:
 - [x] Shotlist-forhåndsvisning med statistikk og tekst-output
 - [x] PDF-eksport av shotlist og shoot-dag
 - [x] Importer .swshot-filer fra Markr via Innstillinger
-- [x] Alle unit-tester passerer (`npm test` → 50 tests)
-- [x] Alle E2E-tester passerer (`npm run test:e2e` → 14 tests)
+- [x] Alle unit-tester passerer (`npm test` → 52 tests)
+- [x] Alle E2E-tester passerer (`npm run test:e2e` — inkl. shotlists.spec.ts med 7 tester)
 - [x] Ingen hardkodede secrets i source
 - [x] All UI-tekst er på norsk
 - [x] README.md er komplett med feature-sjekkliste
 - [x] All kode er linted og formatert (0 errors)
-- [ ] E2E-tester for shotlister (`tests/e2e/shotlists.spec.ts`)
+- [x] E2E-tester for shotlister (`tests/e2e/shotlists.spec.ts`)
 - [ ] Appen kan pakkes som `.dmg` (macOS) og `.exe` (Windows) — utsatt
 - [ ] Claude Code har spurt Stephan om bekreftelse for PR-aktivering
 
