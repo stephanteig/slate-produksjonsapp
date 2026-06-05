@@ -1,0 +1,16 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <mask id="c12m">
+    <rect x="112" y="112" width="800" height="800" rx="188" fill="#fff"></rect>
+    <polygon points="150,108 200,108 74,392 24,392" fill="#000"></polygon>
+    <polygon points="300,108 350,108 224,392 174,392" fill="#000"></polygon>
+    <polygon points="450,108 500,108 374,392 324,392" fill="#000"></polygon>
+    <polygon points="600,108 650,108 524,392 474,392" fill="#000"></polygon>
+    <polygon points="750,108 800,108 674,392 624,392" fill="#000"></polygon>
+    <polygon points="900,108 950,108 824,392 774,392" fill="#000"></polygon>
+    <rect x="112" y="392" width="800" height="30" fill="#000"></rect>
+    <line x1="404" y1="606" x2="620" y2="606" stroke="#000" stroke-width="38" stroke-linecap="round"></line><line x1="404" y1="662" x2="560" y2="662" stroke="#000" stroke-width="38" stroke-linecap="round"></line><line x1="404" y1="718" x2="596" y2="718" stroke="#000" stroke-width="38" stroke-linecap="round"></line>
+  </mask>
+</defs>
+<rect x="112" y="112" width="800" height="800" rx="188" fill="#222a30" mask="url(#c12m)"></rect>
+</svg>
