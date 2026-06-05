@@ -61,22 +61,33 @@ export function HomeView() {
         {/* Left column */}
         <div className="flex-1 min-w-0 space-y-6">
 
-          {/* Stat cards */}
+          {/* Stat cards — felt-layout inspirert av clapper board (PROD/SHOOT/SHOT/EQ) */}
           <div className="grid grid-cols-4 gap-3">
             {[
-              { label: 'Aktive prosjekter', value: activeProjects.length, view: 'projects' as const },
-              { label: 'Kommende shoot-dager', value: upcomingShootDays.length, view: 'calendar' as const },
-              { label: 'Shotlister', value: state.shotlists.length, view: 'shotlists' as const },
-              { label: 'Utstyr', value: state.equipment.length, view: 'equipment' as const },
+              { fieldLabel: 'PROD', label: 'Aktive prosjekter', value: activeProjects.length, view: 'projects' as const },
+              { fieldLabel: 'SHOOT', label: 'Kommende shoot-dager', value: upcomingShootDays.length, view: 'calendar' as const },
+              { fieldLabel: 'SHOT', label: 'Shotlister', value: state.shotlists.length, view: 'shotlists' as const },
+              { fieldLabel: 'EQ', label: 'Utstyr', value: state.equipment.length, view: 'equipment' as const },
             ].map((card) => (
               <button
                 key={card.label}
                 onClick={() => dispatch({ type: 'SET_VIEW', view: card.view })}
-                className="rounded-lg border p-4 text-left transition-colors hover:border-[var(--color-accent)]"
+                className="rounded-lg border overflow-hidden text-left transition-colors hover:border-[var(--color-accent)]"
                 style={{ borderColor: 'var(--color-border)', background: 'var(--color-surface)' }}
               >
-                <p className="text-2xl font-bold" style={{ color: 'var(--color-accent)' }}>{card.value}</p>
-                <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>{card.label}</p>
+                <div
+                  className="px-3 py-1 text-[9px] font-mono font-semibold uppercase tracking-widest"
+                  style={{
+                    background: 'var(--color-border)',
+                    color: 'var(--color-text-muted)',
+                  }}
+                >
+                  {card.fieldLabel}
+                </div>
+                <div className="p-4">
+                  <p className="text-2xl font-bold" style={{ color: 'var(--color-accent)' }}>{card.value}</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>{card.label}</p>
+                </div>
               </button>
             ))}
           </div>

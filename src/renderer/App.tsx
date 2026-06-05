@@ -11,6 +11,7 @@ import { KitList } from './components/equipment/KitList'
 import { SettingsPanel } from './components/settings/SettingsPanel'
 import { ShotlistView } from './components/shotlists/ShotlistView'
 import { HomeView } from './components/home/HomeView'
+import { SlateStripe } from './components/ui/SlateStripe'
 import { useNotifications } from './hooks/useNotifications'
 import { useTheme } from './hooks/useTheme'
 
@@ -75,7 +76,9 @@ function AppContent() {
   }
 
   return (
-    <div className="flex h-full">
+    <div className="flex flex-col h-full">
+      <SlateStripe />
+      <div className="flex flex-1 overflow-hidden">
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <TopBar />
@@ -88,6 +91,7 @@ function AppContent() {
           {state.view === 'shotlists' && <ShotlistView />}
           {state.view === 'settings' && <SettingsPanel />}
         </MainPanel>
+      </div>
       </div>
     </div>
   )
