@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import type { Shotlist } from '../../../shared/types/shotlist'
 import { useShotlists } from '../../hooks/useShotlists'
 import { useAppStore } from '../../store/appStore'
@@ -18,9 +18,18 @@ function newShotlist(): Shotlist {
 
 export function ShotlistView() {
   const { shotlists, saveShotlist, deleteShotlist } = useShotlists()
-  const { state } = useAppStore()
+  const { state, dispatch } = useAppStore()
   const [activeId, setActiveId] = useState<string | null>(null)
   const [filterProjectId, setFilterProjectId] = useState<string>('')
+
+  // Consume activeShotlistId navigation hint from global state
+  useEffect(() => {
+    if (state.activeShotlistId) {
+      setActiveId(state.activeShotlistId)
+      setFilterProjectId('')
+      dispatch({ type: 'SET_ACTIVE_SHOTLIST', id: null })
+    }
+  }, [state.activeShotlistId])
 
   const activeShotlist = shotlists.find((s) => s.id === activeId) ?? null
 

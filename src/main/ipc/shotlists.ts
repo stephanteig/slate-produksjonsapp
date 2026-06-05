@@ -243,8 +243,43 @@ function convertSwshotToShotlist(raw: Record<string, unknown>): Shotlist {
   }
 }
 
+function imagePathToBase64(relativePath: string): string | null {
+  try {
+    const vaultPath = getVaultPath()
+    if (!vaultPath || !relativePath) return null
+    const absPath = path.join(vaultPath, relativePath)
+    if (!fs.existsSync(absPath)) return null
+    const buffer = fs.readFileSync(absPath)
+    const ext = path.extname(absPath).slice(1).toLowerCase()
+    const mime =
+      ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : ext === 'png' ? 'image/png' : 'image/webp'
+    return `data:${mime};base64,${buffer.toString('base64')}`
+  } catch {
+    return null
+  }
+}
+
 function buildShotlistPdfHtml(sl: Shotlist): string {
   let shotCounter = 0
+
+  const moodboardHtml =
+    sl.moodboardImages.length > 0
+      ? `<div style="margin-bottom:28px">
+           <h2 style="font-size:14px;font-weight:bold;margin-bottom:10px;border-bottom:1px solid #ddd;padding-bottom:4px">Moodboard</h2>
+           <div style="display:flex;flex-wrap:wrap;gap:8px">
+             ${sl.moodboardImages
+               .map((imgPath) => {
+                 const src = imagePathToBase64(imgPath)
+                 return src
+                   ? `<img src="${src}" style="width:150px;height:112px;object-fit:cover;border-radius:6px;border:1px solid #eee" />`
+                   : ''
+               })
+               .filter(Boolean)
+               .join('')}
+           </div>
+         </div>`
+      : ''
+
   const sectionsHtml = sl.sections
     .map((section) => {
       const rowsHtml = section.rows
@@ -259,10 +294,14 @@ function buildShotlistPdfHtml(sl: Shotlist): string {
             ]
               .filter(Boolean)
               .join(' &nbsp;|&nbsp; ')
+            const imgSrc = row.imagePath ? imagePathToBase64(row.imagePath) : null
+            const imgHtml = imgSrc
+              ? `<br><img src="${imgSrc}" style="max-width:120px;max-height:90px;border-radius:4px;object-fit:cover;margin-top:4px" />`
+              : ''
             return `<tr>
-              <td style="width:30px;text-align:center;color:#666">${shotCounter}</td>
-              <td style="width:20px;text-align:center">${row.checked ? '☑' : '☐'}</td>
-              <td><strong>${esc(row.text)}</strong>${details ? `<br><small style="color:#888">${details}</small>` : ''}</td>
+              <td style="width:30px;text-align:center;color:#666;vertical-align:top;padding-top:6px">${shotCounter}</td>
+              <td style="width:20px;text-align:center;vertical-align:top;padding-top:6px">${row.checked ? '☑' : '☐'}</td>
+              <td><strong>${esc(row.text)}</strong>${details ? `<br><small style="color:#888">${details}</small>` : ''}${imgHtml}</td>
             </tr>`
           }
           if (row.type === 'note') {
@@ -290,6 +329,7 @@ function buildShotlistPdfHtml(sl: Shotlist): string {
   </head><body>
     <h1>${esc(sl.title)}</h1>
     <p style="color:#666;font-size:13px">Shots: ${doneShots}/${totalShots} fullført</p>
+    ${moodboardHtml}
     ${sectionsHtml}
   </body></html>`
 }

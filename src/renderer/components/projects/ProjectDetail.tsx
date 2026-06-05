@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import type { Project } from '../../../shared/types/project'
+import type { Shotlist } from '../../../shared/types/shotlist'
 import { TaskList } from './TaskList'
 import { useProjects } from '../../hooks/useProjects'
+import { useAppStore } from '../../store/appStore'
 import { isValidDropboxUrl } from '../../utils/validationUtils'
+import { formatDisplayDate } from '../../utils/dateUtils'
 
 interface ProjectDetailProps {
   project: Project
@@ -15,8 +18,13 @@ const STATUS_OPTIONS: { value: Project['status']; label: string }[] = [
   { value: 'delivered', label: 'Levert' },
 ]
 
+function shotCount(sl: Shotlist) {
+  return sl.sections.flatMap((s) => s.rows).filter((r) => r.type === 'shot').length
+}
+
 export function ProjectDetail({ project, onArchive }: ProjectDetailProps) {
   const { saveProject, saveTasks } = useProjects()
+  const { state, dispatch } = useAppStore()
   const [title, setTitle] = useState(project.title)
   const [status, setStatus] = useState(project.status)
   const [dropboxUrl, setDropboxUrl] = useState(project.dropboxUrl ?? '')
@@ -63,6 +71,12 @@ export function ProjectDetail({ project, onArchive }: ProjectDetailProps) {
     onArchive()
     setConfirmArchive(false)
   }
+
+  const linkedShootDays = state.shootDays
+    .filter((s) => s.projectId === project.id)
+    .sort((a, b) => a.date.localeCompare(b.date))
+
+  const linkedShotlists = state.shotlists.filter((sl) => sl.projectId === project.id)
 
   return (
     <div className="h-full overflow-y-auto px-6 py-6">
@@ -181,6 +195,61 @@ export function ProjectDetail({ project, onArchive }: ProjectDetailProps) {
         </h2>
         <TaskList tasks={tasks} onChange={handleTasksChange} />
       </div>
+
+      {/* Linked shoot days */}
+      {linkedShootDays.length > 0 && (
+        <div className="mt-6">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-muted)' }}>
+            Shoot-dager
+          </h2>
+          <div className="space-y-2">
+            {linkedShootDays.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => dispatch({ type: 'SET_VIEW', view: 'calendar' })}
+                className="w-full text-left rounded-lg border p-3 transition-colors hover:border-[var(--color-accent)]"
+                style={{ borderColor: 'var(--color-border)', background: 'var(--color-surface)' }}
+              >
+                <p className="text-sm font-medium" style={{ color: 'var(--color-text)' }}>
+                  {formatDisplayDate(s.date)}
+                </p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+                  {s.title}{s.location ? ` · ${s.location}` : ''}
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Linked shotlists */}
+      {linkedShotlists.length > 0 && (
+        <div className="mt-6">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-muted)' }}>
+            Shotlister
+          </h2>
+          <div className="space-y-2">
+            {linkedShotlists.map((sl) => (
+              <button
+                key={sl.id}
+                onClick={() => {
+                  dispatch({ type: 'SET_ACTIVE_SHOTLIST', id: sl.id })
+                  dispatch({ type: 'SET_VIEW', view: 'shotlists' })
+                }}
+                className="w-full text-left rounded-lg border p-3 transition-colors hover:border-[var(--color-accent)]"
+                style={{ borderColor: 'var(--color-border)', background: 'var(--color-surface)' }}
+              >
+                <p className="text-sm font-medium" style={{ color: 'var(--color-text)' }}>
+                  {sl.title || '(uten tittel)'}
+                </p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+                  {shotCount(sl)} shot{shotCount(sl) !== 1 ? 's' : ''}
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

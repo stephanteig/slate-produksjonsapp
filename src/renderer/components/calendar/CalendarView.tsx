@@ -25,7 +25,7 @@ export function CalendarView() {
   const [showShootForm, setShowShootForm] = useState(false)
   const [editingShootDay, setEditingShootDay] = useState<ShootDay | null>(null)
   const { shootDays, loans, refreshShootDays, refreshLoans } = useCalendar()
-  const { state } = useAppStore()
+  const { state, dispatch } = useAppStore()
 
   useEffect(() => {
     if (state.config?.vaultPath) {
@@ -182,28 +182,57 @@ export function CalendarView() {
               <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Ingen hendelser denne dagen.</p>
             )}
 
-            {!showShootForm && !editingShootDay && selectedShootDays.map((s) => (
-              <div key={s.id} className="rounded-lg border p-3" style={{ borderColor: 'var(--color-border)', background: 'var(--color-surface)' }}>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium" style={{ color: 'var(--color-accent)' }}>{s.title}</p>
-                    {s.location && <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>📍 {s.location}</p>}
-                    {s.crew && <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>👥 {s.crew}</p>}
+            {!showShootForm && !editingShootDay && selectedShootDays.map((s) => {
+              const linkedShotlists = state.shotlists.filter((sl) => sl.shootDayId === s.id)
+              const slShotCount = (sl: typeof linkedShotlists[0]) =>
+                sl.sections.flatMap((sec) => sec.rows).filter((r) => r.type === 'shot').length
+              return (
+                <div key={s.id} className="rounded-lg border p-3" style={{ borderColor: 'var(--color-border)', background: 'var(--color-surface)' }}>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium" style={{ color: 'var(--color-accent)' }}>{s.title}</p>
+                      {s.location && <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>📍 {s.location}</p>}
+                      {s.crew && <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>👥 {s.crew}</p>}
+                    </div>
+                    <div className="flex gap-1 flex-shrink-0 ml-2">
+                      <button
+                        onClick={() => window.electronAPI.exportShootDayPdf(s.id)}
+                        className="text-xs"
+                        style={{ color: 'var(--color-text-muted)' }}
+                        title="Eksporter PDF"
+                      >
+                        PDF
+                      </button>
+                      <button onClick={() => { setEditingShootDay(s); setShowShootForm(false) }} className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Rediger</button>
+                    </div>
                   </div>
-                  <div className="flex gap-1 flex-shrink-0 ml-2">
-                    <button
-                      onClick={() => window.electronAPI.exportShootDayPdf(s.id)}
-                      className="text-xs"
-                      style={{ color: 'var(--color-text-muted)' }}
-                      title="Eksporter PDF"
-                    >
-                      PDF
-                    </button>
-                    <button onClick={() => { setEditingShootDay(s); setShowShootForm(false) }} className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Rediger</button>
-                  </div>
+
+                  {linkedShotlists.length > 0 && (
+                    <div className="mt-3 border-t pt-2" style={{ borderColor: 'var(--color-border)' }}>
+                      <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-muted)' }}>
+                        Shotlister
+                      </p>
+                      <div className="space-y-1">
+                        {linkedShotlists.map((sl) => (
+                          <button
+                            key={sl.id}
+                            onClick={() => {
+                              dispatch({ type: 'SET_ACTIVE_SHOTLIST', id: sl.id })
+                              dispatch({ type: 'SET_VIEW', view: 'shotlists' })
+                            }}
+                            className="w-full text-left text-xs rounded px-2 py-1 transition-colors hover:bg-[var(--color-border)]"
+                            style={{ color: 'var(--color-accent)' }}
+                          >
+                            {sl.title || '(uten tittel)'}
+                            <span style={{ color: 'var(--color-text-muted)' }}> · {slShotCount(sl)} shots</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              )
+            })}
 
             {selectedLoans.length > 0 && (
               <LoanOverlay loans={selectedLoans} equipment={state.equipment} />

@@ -9,6 +9,7 @@ import type { Shotlist } from '../../shared/types/shotlist'
 
 export type AppView =
   | 'onboarding'
+  | 'home'
   | 'projects'
   | 'equipment'
   | 'calendar'
@@ -27,6 +28,7 @@ interface AppState {
   shotlists: Shotlist[]
   notifications: LoanNotification[]
   highlightedLoanId: string | null
+  activeShotlistId: string | null
 }
 
 type AppAction =
@@ -40,6 +42,7 @@ type AppAction =
   | { type: 'SET_SHOTLISTS'; shotlists: Shotlist[] }
   | { type: 'SET_NOTIFICATIONS'; notifications: LoanNotification[] }
   | { type: 'HIGHLIGHT_LOAN'; loanId: string | null }
+  | { type: 'SET_ACTIVE_SHOTLIST'; id: string | null }
 
 const initialState: AppState = {
   view: 'onboarding',
@@ -52,6 +55,7 @@ const initialState: AppState = {
   shotlists: [],
   notifications: [],
   highlightedLoanId: null,
+  activeShotlistId: null,
 }
 
 function reducer(state: AppState, action: AppAction): AppState {
@@ -76,6 +80,8 @@ function reducer(state: AppState, action: AppAction): AppState {
       return { ...state, notifications: action.notifications }
     case 'HIGHLIGHT_LOAN':
       return { ...state, highlightedLoanId: action.loanId }
+    case 'SET_ACTIVE_SHOTLIST':
+      return { ...state, activeShotlistId: action.id }
     default:
       return state
   }

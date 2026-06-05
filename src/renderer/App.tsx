@@ -10,6 +10,7 @@ import { CalendarView } from './components/calendar/CalendarView'
 import { KitList } from './components/equipment/KitList'
 import { SettingsPanel } from './components/settings/SettingsPanel'
 import { ShotlistView } from './components/shotlists/ShotlistView'
+import { HomeView } from './components/home/HomeView'
 import { useNotifications } from './hooks/useNotifications'
 import { useTheme } from './hooks/useTheme'
 
@@ -50,7 +51,7 @@ function AppContent() {
         return
       }
       dispatch({ type: 'SET_CONFIG', config: result.data })
-      dispatch({ type: 'SET_VIEW', view: 'projects' })
+      dispatch({ type: 'SET_VIEW', view: 'home' })
     }
     init()
   }, [dispatch])
@@ -79,6 +80,7 @@ function AppContent() {
       <div className="flex flex-1 flex-col overflow-hidden">
         <TopBar />
         <MainPanel>
+          {state.view === 'home' && <HomeView />}
           {state.view === 'projects' && <ProjectList />}
           {state.view === 'equipment' && <EquipmentList />}
           {state.view === 'calendar' && <CalendarView />}

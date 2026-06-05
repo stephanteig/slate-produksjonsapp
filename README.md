@@ -5,27 +5,27 @@ Cross-platform produksjonsdashboard for videoskapere. Lagrer all data som Markdo
 ## Features
 
 ### Ferdig ✅
+- [x] **Dashboard** — hjemskjerm med statistikk, kommende shoot-dager, aktive prosjekter, varsler og hurtiglenker
 - [x] **Onboarding** — vault-valg, theme-valg, mappestruktur
-- [x] **Prosjekt-todo** — opprett, rediger, arkiver, hierarkiske tasks med sub-tasks
+- [x] **Prosjekt-todo** — opprett, rediger, arkiver, hierarkiske tasks med sub-tasks; viser tilknyttede shoot-dager og shotlister
 - [x] **Utstyrsregister** — katalog med eiere, kategorier, status, PDF-eksport
 - [x] **Utlånskalender** — overlappvalidering, forfalt-varsler, "marker som levert"
 - [x] **Utstyrskits** — pakk utstyr i gjenbrukbare kits med tilgjengelighetsstatus
-- [x] **Shoot-kalender** — planlegg shoot-dager med utstyr og prosjekttilknytning
+- [x] **Shoot-kalender** — planlegg shoot-dager med crew-felt, utstyr og prosjekttilknytning; viser tilknyttede shotlister med direktenavigasjon
 - [x] **6 temaer** — live theme-switching uten reload (Nordic Slate, Soft Dusk, Tokyo Night, Paper & Ink, Lavender Fog, Iron Press)
 - [x] **Dataportabilitet** — eksporter og importer alt som ZIP
 - [x] **In-app notifikasjoner** — badge og dropdown for forfalte utlån
 - [x] **fs.watch** — automatisk oppdatering når Obsidian endrer filer i vaulten
+- [x] **Shotlister** — scener, shot/note/quote-rader, global nummerering, auto-save, DnD
+- [x] **Shot-detaljer** — shot size, linse, bevegelse, storyboard-bilde per shot
+- [x] **Moodboard** — last opp referansebilder per shotlist
+- [x] **9 maler** — Boligfoto, Intervju, Social Media, Event, Produktfoto, Podcast Video, Testimonial, Behind the Scenes, Brand Film
+- [x] **Forhåndsvisning** — statistikk, fremgangsbar, ren tekst-output, kopier til utklippstavle
+- [x] **PDF-eksport av shotlist** — inkluderer storyboard-bilder per shot og moodboard-seksjon
+- [x] **PDF-eksport av shoot-dag** — dato, crew, shotlister og utstyr samlet
+- [x] **Importer fra Markr** — les .swshot-filer og konverter til Slate-shotlister
 
 ### Planlagt 🗓
-- [ ] **Shotlister** — scener, shot/note/quote-rader, global nummerering, autolargring
-- [ ] **Shot-detaljer** — shot size, linse, bevegelse, storyboard-bilde per shot
-- [ ] **Moodboard** — last opp referansebilder per shotlist
-- [ ] **9 maler** — Boligfoto, Intervju, Social Media, Event, Produktfoto, Podcast Video, Testimonial, Behind the Scenes, Brand Film
-- [ ] **Forhåndsvisning** — statistikk, fremgangsbar, ren tekst-output, kopier til utklippstavle
-- [ ] **PDF-eksport av shotlist** — utskriftsvennlig versjon med storyboard-bilder
-- [ ] **PDF-eksport av shoot-dag** — dato, crew, shotlister og utstyr samlet
-- [ ] **Crew-felt på shoot-dager** — hvem er med på shooten
-- [ ] **Importer fra Markr** — les .swshot-filer og konverter til Slate-shotlister
 - [ ] **.dmg og .exe pakking** — distribusjonsklar for macOS og Windows
 
 ## Kom i gang

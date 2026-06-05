@@ -926,12 +926,14 @@ Vent på bekreftelse fra Stephan. Først etter "ja" gjelder disse reglene:
 > Oppdatert: 2026-06-05. Kjør `npm test` og `npm run test:e2e` for å verifisere.
 
 ### Ferdig ✅
+- **Dashboard (Hjem)** — statistikk-kort, kommende shoot-dager, aktive prosjekter, varsler, hurtiglenker; er nå default-visning ved oppstart
+- **Kryssvisningsnavigasjon** — klikk shoot-dag/shotlist fra prosjekt, dashboard eller kalender for direktenavigasjon via `activeShotlistId` i global state
 - **Onboarding** — vault-valg, config-import, theme-valg, mappestruktur opprettes
-- **Prosjekt-todo** — opprett, rediger, arkiver, hierarkiske tasks med sub-tasks, Dropbox-URL
+- **Prosjekt-todo** — opprett, rediger, arkiver, hierarkiske tasks med sub-tasks, Dropbox-URL; viser tilknyttede shoot-dager og shotlister
 - **Utstyrsregister** — katalog med eiere, kategorier, status, PDF-eksport
 - **Utlånskalender** — overlappvalidering, forfalt-varsler, "marker som levert"
 - **Utstyrskits** — pakk utstyr i gjenbrukbare kits med tilgjengelighetsstatus
-- **Shoot-kalender** — planlegg shoot-dager med utstyr, prosjekttilknytning og crew-felt
+- **Shoot-kalender** — planlegg shoot-dager med utstyr, prosjekttilknytning og crew-felt; viser tilknyttede shotlister med direktenavigasjon
 - **6 temaer** — live theme-switching (Nordic Slate, Soft Dusk, Tokyo Night, Paper & Ink, Lavender Fog, Iron Press)
 - **Dataportabilitet** — eksporter og importer alt som ZIP
 - **In-app notifikasjoner** — badge og dropdown for forfalte utlån
@@ -941,7 +943,7 @@ Vent på bekreftelse fra Stephan. Først etter "ja" gjelder disse reglene:
 - **Moodboard** — last opp referansebilder per shotlist
 - **9 maler** — Boligfoto, Intervju, Social Media, Event, Produktfoto, Podcast Video, Testimonial, Behind the Scenes, Brand Film
 - **Shotlist forhåndsvisning** — statistikk, fremgangsbar, ren tekst, kopier til utklippstavle
-- **PDF-eksport av shotlist** — via webContents.printToPDF()
+- **PDF-eksport av shotlist** — inkluderer storyboard-bilder per shot og moodboard-seksjon (base64 embedded)
 - **PDF-eksport av shoot-dag** — dato, crew, shotlister og utstyr samlet
 - **Importer fra Markr** — .swshot-filer via Innstillinger
 
@@ -974,6 +976,9 @@ Disse beslutningene er tatt etter diskusjon med Stephan Teig. En ny Claude skal 
 | Bilder serveres som base64 via `vault:readImage` IPC | Renderer har aldri direkte fs-tilgang (IPC-arkitektur) |
 | 9 Markr-maler beholdes som norske startmaler | Stephan er vant til disse fra Markr |
 | .dmg-pakking utsatt | Prioriter funksjonalitet og testing før distribusjon |
+| `activeShotlistId` i global state for navigasjon | Renderer-komponenter er løst koblet — en global hint er ryddigere enn props drilling |
+| Dashboard er default-visning ved oppstart | Gir brukeren umiddelbar oversikt over hva som er planlagt |
+| PDF-bilder embedded som base64 | Main process har fs-tilgang; renderer har aldri direkte fs-tilgang |
 | PR-workflow IKKE aktivert ennå | V1/shotlister ikke bekreftet ferdig av Stephan |
 
 ---
