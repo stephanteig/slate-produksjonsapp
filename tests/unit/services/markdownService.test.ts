@@ -7,6 +7,8 @@ import {
   parseLoanFile,
   parseTasksFile,
   serializeTasksFile,
+  parseShootDayFile,
+  serializeShootDayFile,
 } from '../../../src/main/services/markdownService'
 import type { Project } from '../../../src/shared/types/project'
 import type { Loan } from '../../../src/shared/types/equipment'
@@ -104,6 +106,31 @@ describe('serializeLoanFile', () => {
     expect(parsed.startDate).toBe('2026-06-10')
     expect(parsed.endDate).toBe('2026-06-12')
     expect(parsed.returned).toBe(false)
+  })
+})
+
+describe('parseShootDayFile / serializeShootDayFile', () => {
+  it('round-trips crew field correctly', () => {
+    const day = {
+      id: 'day-1',
+      date: '2026-06-15',
+      title: 'Shoot — Produkt X',
+      location: 'Oslo Studio',
+      crew: 'Stephan, Kari, Ola',
+      equipmentIds: [],
+    }
+    const serialized = serializeShootDayFile(day)
+    const parsed = parseShootDayFile(serialized)
+    expect(parsed.crew).toBe('Stephan, Kari, Ola')
+    expect(parsed.title).toBe('Shoot — Produkt X')
+    expect(parsed.location).toBe('Oslo Studio')
+  })
+
+  it('handles missing crew field without crashing', () => {
+    const content = `---\nid: day-2\ndate: 2026-06-16\ntitle: Shoot uten crew\n---\n`
+    const parsed = parseShootDayFile(content)
+    expect(parsed.crew).toBeUndefined()
+    expect(parsed.title).toBe('Shoot uten crew')
   })
 })
 
