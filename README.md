@@ -29,6 +29,16 @@ Cross-platform produksjonsdashboard for videoskapere. Lagrer all data som Markdo
 ### Planlagt 🗓
 - [ ] **.dmg og .exe pakking** — distribusjonsklar for macOS og Windows
 
+## Skjermbilder
+
+| | |
+|---|---|
+| ![Dashboard](assets/screenshots/home.png) | ![Prosjekter](assets/screenshots/projects.png) |
+| ![Utstyr](assets/screenshots/equipment.png) | ![Kalender](assets/screenshots/calendar.png) |
+| ![Kits](assets/screenshots/kits.png) | ![Shotlister](assets/screenshots/shotlists.png) |
+| ![Prosjektdetalj](assets/screenshots/project-detail.png) | ![Shotlist editor](assets/screenshots/shotlist-editor.png) |
+| ![Innstillinger](assets/screenshots/settings.png) | |
+
 ## Kom i gang
 
 ```bash
