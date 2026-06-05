@@ -1,4 +1,4 @@
-import { ipcMain, BrowserWindow, dialog } from 'electron'
+import { ipcMain, BrowserWindow, dialog, app } from 'electron'
 import fs from 'fs'
 import path from 'path'
 import { randomUUID } from 'crypto'
@@ -145,18 +145,19 @@ export function registerShotlistHandlers(): void {
       })
       if (saveResult.canceled || !saveResult.filePath) return { success: false, canceled: true }
 
-      // Build HTML for PDF
       const html = buildShotlistPdfHtml(sl)
+      const tmpPath = path.join(app.getPath('temp'), `slate-pdf-${Date.now()}.html`)
+      fs.writeFileSync(tmpPath, html, 'utf-8')
 
-      // Load HTML into a hidden window for printing
       const pdfWin = new BrowserWindow({ show: false, webPreferences: { offscreen: true } })
-      await pdfWin.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`)
+      await pdfWin.loadFile(tmpPath)
 
       const data = await pdfWin.webContents.printToPDF({
         printBackground: true,
         pageSize: 'A4',
       })
       pdfWin.destroy()
+      fs.unlinkSync(tmpPath)
 
       fs.writeFileSync(saveResult.filePath, data)
       return { success: true, data: saveResult.filePath }
@@ -189,11 +190,15 @@ export function registerShotlistHandlers(): void {
       if (saveResult.canceled || !saveResult.filePath) return { success: false, canceled: true }
 
       const html = buildShootDayPdfHtml(day, linkedShotlists, dayEquipment)
+      const tmpPath = path.join(app.getPath('temp'), `slate-pdf-${Date.now()}.html`)
+      fs.writeFileSync(tmpPath, html, 'utf-8')
+
       const pdfWin = new BrowserWindow({ show: false, webPreferences: { offscreen: true } })
-      await pdfWin.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`)
+      await pdfWin.loadFile(tmpPath)
 
       const data = await pdfWin.webContents.printToPDF({ printBackground: true, pageSize: 'A4' })
       pdfWin.destroy()
+      fs.unlinkSync(tmpPath)
 
       fs.writeFileSync(saveResult.filePath, data)
       return { success: true, data: saveResult.filePath }
