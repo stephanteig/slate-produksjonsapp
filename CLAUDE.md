@@ -10,11 +10,14 @@
 ```
 Bygg Slate — et cross-platform Electron-dashboard for videoproduksjon.
 Appen lagrer all data som Markdown-filer i en Obsidian-vault.
-MVP inkluderer: prosjekt-todo (med arkivering), utstyrsregister, utlånskalender,
-utstyrskits, shoot-kalender, onboarding med config-import + theme-valg, theme-switcher,
+Inkluderer: prosjekt-todo (med arkivering), utstyrsregister, utlånskalender,
+utstyrskits, shoot-kalender, shotlister (med StudioBinder-inspirerte shot-detaljer,
+storyboard-bilder, moodboard, 9 maler, PDF-eksport og Markr-import),
+onboarding med config-import + theme-valg, theme-switcher,
 in-app notifikasjoner for forfalt utlån, PDF-eksport av utstyrsliste,
 og full export/import av userdata (config + /Slate/-mappe) for bruk på flere maskiner.
-Appen skal være beta-klar: stabil, testet og pakket som .dmg og .exe.
+Appen erstatter Markr (shotlist-planner) og brukes som eneste produksjonsverktøy.
+Appen skal pakkes som .dmg og .exe — .dmg-pakking er utsatt til etter UI-testing.
 ```
 
 ---
@@ -57,7 +60,8 @@ Appen skal være beta-klar: stabil, testet og pakket som .dmg og .exe.
 | Vault-watching | Node.js `fs.watch` | Oppdager endringer fra Obsidian umiddelbart |
 | Notifikasjoner | Electrons `Notification` API | In-app varsler uten tredjepartsavhengigheter |
 | Zip/unzip | `adm-zip` | Export/import av userdata på tvers av maskiner |
-| PDF-eksport | `electron` sin `webContents.printToPDF()` | Utstyrliste-eksport |
+| PDF-eksport | `electron` sin `webContents.printToPDF()` | Utstyrliste-, shotlist- og shoot-dag-eksport |
+| DnD | `@dnd-kit/core` + `@dnd-kit/sortable` | Drag-to-reorder av shot-rader innad i seksjon |
 | Build | `electron-builder` | Produserer `.dmg` og `.exe` |
 | Testing | Vitest + Playwright | Vitest for unit/integration, Playwright for E2E |
 | Linting | ESLint + Prettier | Konsistent kodestil |
@@ -317,6 +321,7 @@ export interface ShootDay {
   projectId?: string;
   title: string;
   location?: string;
+  crew?: string;          // Fritekst: "Navn, Navn, Navn"
   equipmentIds?: string[];
   notes?: string;
 }
@@ -344,6 +349,43 @@ export interface SlateConfig {
 ```
 
 > `slate-config.json` lagres i Electrons `app.getPath('userData')` — **ikke** i vaulten. Dette er standard Electron-mønster og holder konfigurasjonen ute av Obsidian.
+
+### shared/types/shotlist.ts
+```typescript
+export type ShotRowType = 'shot' | 'note' | 'quote'
+
+export interface ShotRow {
+  id: string
+  type: ShotRowType
+  text: string
+  checked: boolean
+  // Kun relevante for type === 'shot':
+  imagePath?: string      // relativ sti fra vault-root
+  shotSize?: string       // f.eks. 'Vidvinkel', 'Nært', etc.
+  lens?: string           // fritekst: '24mm', '50mm', etc.
+  movement?: string       // f.eks. 'Statisk', 'Dolly inn', etc.
+  extraNotes?: string
+}
+
+export interface ShotSection {
+  id: string
+  name: string
+  color: string           // hex fra SECTION_COLORS-paletten
+  collapsed: boolean
+  rows: ShotRow[]
+}
+
+export interface Shotlist {
+  id: string
+  title: string
+  projectId?: string      // valgfri kobling til Slate-prosjekt
+  shootDayId?: string     // valgfri kobling til shoot-dag i kalender
+  moodboardImages: string[]  // relative stier til moodboard-bilder
+  createdAt: string
+  updatedAt: string
+  sections: ShotSection[]
+}
+```
 
 ---
 
@@ -421,7 +463,7 @@ equipmentIds:
 Anbefalt oppsett for intervjuer.
 ```
 
-### Shoot-dag: `Slate/calendar/<dato>.md`
+### Shoot-dag: `Slate/calendar/<dato>-<id>.md`
 ```markdown
 ---
 id: uuid-her
@@ -429,6 +471,7 @@ date: 2026-06-15
 title: Shoot — Produkt X
 projectId: uuid-prosjekt
 location: Oslo Studio
+crew: Stephan, Kari, Ola
 equipmentIds:
   - uuid-kamera
   - uuid-lys
@@ -436,6 +479,48 @@ equipmentIds:
 
 Notater om shoot-dagen.
 ```
+
+### Shotlist: `Slate/shotlists/<slug>-<id>.md`
+```markdown
+---
+id: uuid-her
+title: Interview — Produkt X
+projectId: uuid-prosjekt
+shootDayId: uuid-shootdag
+moodboardImages:
+  - Slate/shotlists/uuid-her/moodboard/abc.jpg
+createdAt: 2026-06-05
+updatedAt: 2026-06-05
+sections:
+  - id: seksjon-uuid
+    name: Åpning
+    color: '#4f8ef7'
+    collapsed: false
+    rows:
+      - id: rad-uuid
+        type: shot
+        text: Wide establishing shot av bygningen
+        checked: false
+        shotSize: Vidvinkel
+        lens: 24mm
+        movement: Dolly inn
+        imagePath: Slate/shotlists/uuid-her/storyboard/rad-uuid.jpg
+        extraNotes: Skyt ved gyllen time
+      - id: rad-uuid2
+        type: note
+        text: Husk ekstra batteri
+        checked: false
+---
+```
+
+**Bilder lagres i:**
+```
+Slate/shotlists/<id>/
+  storyboard/<shot-id>.jpg   # ett per shot (filnavn = shot-id)
+  moodboard/<uuid>.jpg       # moodboard-bilder for hele shotlisten
+```
+
+Bilder serveres til renderer via IPC `vault:readImage` → base64 data URL. Renderer har aldri direkte `fs`-tilgang.
 
 ---
 
@@ -686,6 +771,59 @@ Notater om shoot-dagen.
 
 ---
 
+### 10. Shotlister ✅ IMPLEMENTERT
+
+> **Kontekst:** Stephan brukte Markr (shotlist-planner, github.com/stephanteig/shotlist-planner) som separat app. Slate erstatter Markr fullstendig. Shotlist-funksjonaliteten er StudioBinder-inspirert.
+
+**Hva det skal gjøre:**
+- Opprett og rediger shotlister med scener (seksjoner) og rader (shot/notat/sitat)
+- Shot-rader har: beskrivelse, shot size, linse, bevegelse, storyboard-bilde, tilleggsnotat
+- Drag-to-reorder rader innad i en seksjon (`@dnd-kit/sortable`) — på tvers av seksjoner ikke støttet i v1
+- Global sekvensiell shot-nummerering på tvers av alle seksjoner
+- Autolargring med 500ms debounce (ingen Lagre-knapp)
+- Koble shotlist til prosjekt og/eller shoot-dag (valgfritt)
+- Moodboard: last opp referansebilder per shotlist
+- Storyboard: ett bilde per shot-rad
+- 9 norske startnaler: Boligfoto, Intervju, Social Media, Event, Produktfoto, Podcast Video, Testimonial, Behind the Scenes, Brand Film
+- Forhåndsvisning med fremgangsstatistikk, estimert tid (3 min/shot) og ren tekst
+- Eksporter shotlist som PDF (`webContents.printToPDF()`)
+- Eksporter shoot-dag som PDF (inkl. crew, tilknyttede shotlister, utstyr)
+- Importer .swshot-filer fra Markr via Innstillinger → Importer fra Markr
+
+**Viktige constraints (ikke endre uten eksplisitt grunn):**
+- Import-funksjon bor i **Innstillinger**, ikke i shotlist-editoren
+- **Ingen** crew-felt på prosjekter — crew finnes kun på shoot-dager
+- Ubegrenset antall shotlister per prosjekt og per shoot-dag
+- **Ingen** cloud sync, ingen Azure/Firebase, ingen nettverkskall — all data lokal i vault
+- Seksjonsfarge sykler gjennom `SECTION_COLORS`-paletten ved klikk
+- Bilder serveres via `vault:readImage` IPC → base64 — aldri direkte `fs` fra renderer
+
+**Filer:**
+- `src/shared/types/shotlist.ts` — typer
+- `src/main/ipc/shotlists.ts` — alle IPC handlers (list, save, delete, PDF, upload, import)
+- `src/main/services/vaultService.ts` — `listShotlists`, `saveShotlist`, `deleteShotlist`, `shotlistImageDir`
+- `src/main/services/markdownService.ts` — `parseShotlistFile`, `serializeShotlistFile`
+- `src/renderer/components/shotlists/ShotlistView.tsx` — to-panel layout (liste + editor)
+- `src/renderer/components/shotlists/ShotlistEditor.tsx` — hoved-editor med auto-save
+- `src/renderer/components/shotlists/ShotSection.tsx` — seksjon med DnD-rader
+- `src/renderer/components/shotlists/ShotRow.tsx` — shot/notat/sitat-rad med detaljer
+- `src/renderer/components/shotlists/ShotlistPreview.tsx` — statistikk + tekst
+- `src/renderer/components/shotlists/ShotlistTemplates.tsx` — mal-modal (9 maler)
+- `src/renderer/components/shotlists/MoodboardPanel.tsx` — bildegrid med upload
+- `src/renderer/hooks/useShotlists.ts` — CRUD-hook
+
+**Edge cases:**
+- Bilder over 10MB → advarselsdialog, bruker velger om de vil fortsette
+- Bilder med unsupported ext → vis feilmelding "Kun .jpg, .png og .webp støttes"
+- `imagePath` peker på fil som ikke finnes → vis placeholder, ikke krasj
+- Shotlist koblet til arkivert/slettet prosjekt → `projectId` nullstilles i UI
+- Mal med eksisterende scener → bekreftelsesdialog "Erstatte eksisterende scener?"
+- .swshot uten seksjoner → importer som tom shotlist
+- Korrupt .swshot JSON → vis feilmelding
+- Avbrutt file picker → `canceled: true`, ingen feilmelding
+
+---
+
 ## Typografi
 
 - **Primærfont:** Geist (god æøå-støtte, karakteristisk, gratis)
@@ -783,17 +921,75 @@ Vent på bekreftelse fra Stephan. Først etter "ja" gjelder disse reglene:
 
 ---
 
-## Første steg Claude Code skal ta
+## Implementasjonsstatus
 
-Ikke skriv kode før dette er gjort:
+> Oppdatert: 2026-06-05. Kjør `npm test` og `npm run test:e2e` for å verifisere.
+
+### Ferdig ✅
+- **Onboarding** — vault-valg, config-import, theme-valg, mappestruktur opprettes
+- **Prosjekt-todo** — opprett, rediger, arkiver, hierarkiske tasks med sub-tasks, Dropbox-URL
+- **Utstyrsregister** — katalog med eiere, kategorier, status, PDF-eksport
+- **Utlånskalender** — overlappvalidering, forfalt-varsler, "marker som levert"
+- **Utstyrskits** — pakk utstyr i gjenbrukbare kits med tilgjengelighetsstatus
+- **Shoot-kalender** — planlegg shoot-dager med utstyr, prosjekttilknytning og crew-felt
+- **6 temaer** — live theme-switching (Nordic Slate, Soft Dusk, Tokyo Night, Paper & Ink, Lavender Fog, Iron Press)
+- **Dataportabilitet** — eksporter og importer alt som ZIP
+- **In-app notifikasjoner** — badge og dropdown for forfalte utlån
+- **fs.watch** — automatisk oppdatering når Obsidian endrer filer i vaulten
+- **Shotlister** — scener, shot/note/quote-rader, global nummerering, auto-save, DnD
+- **Shot-detaljer** — shot size, linse, bevegelse, storyboard-bilde per shot
+- **Moodboard** — last opp referansebilder per shotlist
+- **9 maler** — Boligfoto, Intervju, Social Media, Event, Produktfoto, Podcast Video, Testimonial, Behind the Scenes, Brand Film
+- **Shotlist forhåndsvisning** — statistikk, fremgangsbar, ren tekst, kopier til utklippstavle
+- **PDF-eksport av shotlist** — via webContents.printToPDF()
+- **PDF-eksport av shoot-dag** — dato, crew, shotlister og utstyr samlet
+- **Importer fra Markr** — .swshot-filer via Innstillinger
+
+### Gjenstår 🗓
+- **E2E-tester for shotlister** — `tests/e2e/shotlists.spec.ts` ikke skrevet ennå
+- **.dmg og .exe pakking** — utsatt til etter UI-testing er ferdig
+- **Geist-font** — ikke self-hostet ennå (bruker system-font for nå)
+
+### Test-status (2026-06-05)
+```
+npm test        → 50 tests passed (9 test files)
+npm run test:e2e → 14 tests passed
+npm run lint    → 0 errors
+npx tsc --noEmit → 0 errors
+```
+
+---
+
+## Viktige beslutninger (ikke endre uten eksplisitt grunn)
+
+Disse beslutningene er tatt etter diskusjon med Stephan Teig. En ny Claude skal **ikke** omgjøre disse uten eksplisitt instruks.
+
+| Beslutning | Begrunnelse |
+|------------|-------------|
+| Crew-felt kun på shoot-dager, IKKE på prosjekter | Prosjekter er langsiktige, crew varierer per shoot-dag |
+| Shotlist-import (.swshot) bor i Innstillinger | Import er en migreringsoperasjon, ikke en del av daglig workflow |
+| Ubegrenset antall shotlister per prosjekt og per dag | Bruker trenger fleksibilitet — ingen kunstige begrensninger |
+| Ingen cloud sync (Azure/Firebase/etc.) | All data er lokal i Obsidian-vault. Cloud kan vurderes mye senere |
+| DnD kun innad i seksjon, ikke på tvers | Cross-section DnD er komplekst og ikke nødvendig i v1 |
+| Auto-save med 500ms debounce, ingen Lagre-knapp | Markr-mønster som Stephan er vant til |
+| Bilder serveres som base64 via `vault:readImage` IPC | Renderer har aldri direkte fs-tilgang (IPC-arkitektur) |
+| 9 Markr-maler beholdes som norske startmaler | Stephan er vant til disse fra Markr |
+| .dmg-pakking utsatt | Prioriter funksjonalitet og testing før distribusjon |
+| PR-workflow IKKE aktivert ennå | V1/shotlister ikke bekreftet ferdig av Stephan |
+
+---
+
+## Første steg for ny Claude
+
+Prosjektet er allerede bygget og kjører. Gjør dette:
 
 1. Les hele denne filen
-2. Bekreft tech stack og forklar kort hvorfor det passer prosjektet
-3. List opp alle `npm install`-kommandoer som skal kjøres
-4. Opprett filstrukturen definert ovenfor (tomme filer der det er hensiktsmessig)
-5. Still ETT oppklarende spørsmål hvis noe er genuint uklart — ikke mer
+2. Kjør `npm test && npm run test:e2e` for å bekrefte at alt er grønt
+3. Les README.md for feature-oversikt
+4. Start utviklingsserver med `npm run dev` og test appen manuelt
+5. Still ETT oppklarende spørsmål hvis noe er genuint uklart
 
-Start deretter med **Feature 1: Onboarding & Vault-oppsett**.
+**Ikke** start om fra scratch — alt er implementert. Se «Implementasjonsstatus» over.
 
 ---
 
@@ -801,29 +997,37 @@ Start deretter med **Feature 1: Onboarding & Vault-oppsett**.
 
 Beta er ferdig når:
 
-- [ ] Onboarding fungerer: vault velges, theme velges, mappestruktur opprettes
-- [ ] Prosjekter kan opprettes, redigeres og arkiveres — data lagres som Markdown
-- [ ] Tasks og sub-tasks kan legges til, redigeres og hakas av
-- [ ] Arkiverte prosjekter vises/skjules via filter
-- [ ] Utstyr kan registreres med eier valgt fra liste — data lagres som Markdown
-- [ ] Eiere kan legges til og redigeres i Settings
-- [ ] Utlånsperioder kan opprettes og vises i kalender
-- [ ] Overlappende utlån blokkeres med tydelig feilmelding
-- [ ] Forfalt utlån vises som in-app notifikasjon med "marker som levert"-funksjon
-- [ ] Kits kan opprettes og knyttes til utstyr, utilgjengelig utstyr markeres
-- [ ] Shoot-dager kan opprettes og vises i kalender
-- [ ] Alle 6 temaer fungerer og bytter uten reload
-- [ ] Valgt tema lagres og gjenopprettes ved oppstart
-- [ ] Export og import av userdata (slate-config.json + /Slate/-mappen) fungerer som zip
-- [ ] Utstyrsliste kan eksporteres som PDF
-- [ ] `fs.watch` fanger opp endringer fra Obsidian og oppdaterer UI
-- [ ] Alle unit-tester passerer (`npm test`)
-- [ ] Alle E2E-tester passerer (`npm run test:e2e`)
-- [ ] Appen kan pakkes som `.dmg` (macOS) og `.exe` (Windows)
-- [ ] Ingen hardkodede secrets i source
-- [ ] All UI-tekst er på norsk
-- [ ] README.md er komplett
-- [ ] All kode er linted og formatert
+- [x] Onboarding fungerer: vault velges, theme velges, mappestruktur opprettes
+- [x] Prosjekter kan opprettes, redigeres og arkiveres — data lagres som Markdown
+- [x] Tasks og sub-tasks kan legges til, redigeres og hakas av
+- [x] Arkiverte prosjekter vises/skjules via filter
+- [x] Utstyr kan registreres med eier valgt fra liste — data lagres som Markdown
+- [x] Eiere kan legges til og redigeres i Settings
+- [x] Utlånsperioder kan opprettes og vises i kalender
+- [x] Overlappende utlån blokkeres med tydelig feilmelding
+- [x] Forfalt utlån vises som in-app notifikasjon med "marker som levert"-funksjon
+- [x] Kits kan opprettes og knyttes til utstyr, utilgjengelig utstyr markeres
+- [x] Shoot-dager kan opprettes og vises i kalender med crew-felt
+- [x] Alle 6 temaer fungerer og bytter uten reload
+- [x] Valgt tema lagres og gjenopprettes ved oppstart
+- [x] Export og import av userdata (slate-config.json + /Slate/-mappen) fungerer som zip
+- [x] Utstyrsliste kan eksporteres som PDF
+- [x] `fs.watch` fanger opp endringer fra Obsidian og oppdaterer UI
+- [x] Shotlister: opprett, rediger, slett, ubegrenset per prosjekt/dag
+- [x] Shot-detaljer: size, linse, bevegelse, storyboard-bilde per shot
+- [x] Moodboard: last opp og vis bilder per shotlist
+- [x] 9 norske startmaler fungerer
+- [x] Shotlist-forhåndsvisning med statistikk og tekst-output
+- [x] PDF-eksport av shotlist og shoot-dag
+- [x] Importer .swshot-filer fra Markr via Innstillinger
+- [x] Alle unit-tester passerer (`npm test` → 50 tests)
+- [x] Alle E2E-tester passerer (`npm run test:e2e` → 14 tests)
+- [x] Ingen hardkodede secrets i source
+- [x] All UI-tekst er på norsk
+- [x] README.md er komplett med feature-sjekkliste
+- [x] All kode er linted og formatert (0 errors)
+- [ ] E2E-tester for shotlister (`tests/e2e/shotlists.spec.ts`)
+- [ ] Appen kan pakkes som `.dmg` (macOS) og `.exe` (Windows) — utsatt
 - [ ] Claude Code har spurt Stephan om bekreftelse for PR-aktivering
 
 ---
