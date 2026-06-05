@@ -17,3 +17,4 @@ out/
 test-results/
 playwright-report/
 coverage/
+release/

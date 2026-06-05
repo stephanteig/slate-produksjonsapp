@@ -927,6 +927,8 @@ Vent på bekreftelse fra Stephan. Først etter "ja" gjelder disse reglene:
 
 ### Ferdig ✅
 - **Film slate-visuell identitet** — diagonal stripe i TopBar (referanse til clapper board), PROD/SHOOT/SHOT/EQ-feltetiketter på dashboard-kort; `TopBar` er header-stripa, sidebar har transparent drag-region
+- **App-ikon** — minimal clapperboard-logo (SVG × 4 varianter + icon.icns + icon.ico + icon.png generert)
+- **.dmg og .exe pakking** — `release/Slate-1.0.0-arm64.dmg` (115 MB) og `release/Slate Setup 1.0.0.exe` (101 MB) bygget med electron-builder
 - **Dashboard (Hjem)** — statistikk-kort, kommende shoot-dager, aktive prosjekter, varsler, hurtiglenker; er nå default-visning ved oppstart
 - **Kryssvisningsnavigasjon** — klikk shoot-dag/shotlist fra prosjekt, dashboard eller kalender for direktenavigasjon via `activeShotlistId` i global state
 - **Onboarding** — vault-valg, config-import, theme-valg, mappestruktur opprettes
@@ -949,8 +951,8 @@ Vent på bekreftelse fra Stephan. Først etter "ja" gjelder disse reglene:
 - **Importer fra Markr** — .swshot-filer via Innstillinger
 
 ### Gjenstår 🗓
-- **.dmg og .exe pakking** — utsatt til etter UI-testing er ferdig
 - **Geist-font** — ikke self-hostet ennå (bruker system-font for nå)
+- **Kodesignering** — app er ikke code-signed/notarized; macOS Gatekeeper vil advare ved første åpning (ctrl+klikk → Åpne for å godkjenne)
 
 ### Test-status (2026-06-05)
 ```

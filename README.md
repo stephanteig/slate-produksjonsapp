@@ -13,6 +13,8 @@
 
 ### Ferdig ✅
 - [x] **Film slate-visuell identitet** — diagonal clapper board-stripe i header, PROD/SHOOT/SHOT/EQ-feltetiketter på dashboard-kort
+- [x] **App-ikon** — minimal clapperboard-logo, 4 SVG-varianter, generert .icns og .ico
+- [x] **.dmg og .exe pakking** — `Slate-1.0.0-arm64.dmg` og `Slate Setup 1.0.0.exe` via electron-builder
 - [x] **Dashboard** — hjemskjerm med statistikk, kommende shoot-dager, aktive prosjekter, varsler og hurtiglenker
 - [x] **Onboarding** — vault-valg, theme-valg, mappestruktur
 - [x] **Prosjekt-todo** — opprett, rediger, arkiver, hierarkiske tasks med sub-tasks; viser tilknyttede shoot-dager og shotlister
@@ -34,7 +36,7 @@
 - [x] **Importer fra Markr** — les .swshot-filer og konverter til Slate-shotlister
 
 ### Planlagt 🗓
-- [ ] **.dmg og .exe pakking** — distribusjonsklar for macOS og Windows
+- [ ] **Kodesignering** — notarize for macOS og code-sign for Windows (Gatekeeper-advarsel ved første åpning inntil da)
 
 ## Skjermbilder
 
